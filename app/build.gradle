@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version="1.0.2"
+version="1.0.3"
 android {
     compileSdkVersion 26
     buildToolsVersion "25.0.2"
     defaultConfig {
-        applicationId group
+        applicationId "com.prarui.common"
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
@@ -37,8 +37,7 @@ dependencies {
 }
 def siteUrl = 'https://github.com/ThoughtRain/comUseLib'      // 项目的主页
 def gitUrl = 'https://github.com/ThoughtRain/comUseLib.git'   // Git仓库的url
-group = "com.prarui.common"
-
+group = "com.prarui.common";
 
 
 install {
