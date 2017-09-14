@@ -5,6 +5,7 @@ import android.content.Context;
 import com.prarui.common.conutils.SharePreferenceUtils;
 import com.prarui.common.conutils.SystemUtils;
 import com.prarui.common.conutils.ToastUtils;
+import com.prarui.common.network.OkttpManager;
 
 /**
  * Created by Prarui on 2017/8/29.
@@ -12,9 +13,10 @@ import com.prarui.common.conutils.ToastUtils;
  */
 
 public class CrotonCake {
-    public static void initData(Context context){
+    public static void initData(Context context) {
         SharePreferenceUtils.buid(context);
         SystemUtils.build(context);
         ToastUtils.buid(context);
+        OkttpManager.build();
     }
 }
