@@ -16,6 +16,6 @@ public class PhoneNumberUtils {
         else return false;
     }
     public static void setMaxNumberLenght(EditText editText, int maxNumberLenght){
-        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)});
+        editText.setFilters(new InputFilter[]{new InputFilter.LengthFilter(maxNumberLenght)});
     }
 }

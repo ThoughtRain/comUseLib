@@ -34,6 +34,7 @@ import okhttp3.Response;
 
 public class OkttpManager {
     private static OkHttpClient mOkHttpClient = null;
+
     public static void build() {
         if (null == mOkHttpClient) {
             mOkHttpClient = new OkHttpClient();
@@ -200,9 +201,15 @@ public class OkttpManager {
         mOkHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                if (listener != null) {
-                    listener.onError("请求数据失败");
-                }
+                ((Activity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (listener != null) {
+                            listener.onError("请求数据失败");
+                        }
+                    }
+                });
+
 
             }
 
@@ -232,7 +239,7 @@ public class OkttpManager {
 
         void onError(String e);
 
-        void onResponSesucceed(String bean);
+        void onResponSesucceed(String json);
 
     }
 
