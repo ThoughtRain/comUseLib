@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.prarui.common.conutils.GsonUtils;
 import com.prarui.common.conutils.NetWorkUtils;
+import com.prarui.common.conutils.TagLog;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -217,15 +218,14 @@ public class OkttpManager {
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
 
+                final String json = response.body().string();
+                TagLog.d(json);
                 ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            if (listener != null) {
-                                listener.onResponSesucceed(response.body().string());
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
+
+                        if (listener != null) {
+                            listener.onResponSesucceed(json);
                         }
                     }
                 });
