@@ -22,45 +22,46 @@ public class CheckPermissionUtils {
     public static class Builder {
         private Context context;
         private OnRequestPermissionListener listener;
-        private boolean isSure=true;
+        private AlertDialog.Builder builder;
 
         public Builder(Context context) {
             this.context = context;
         }
 
         public Builder checkPermission(final String permission, final int permissions_request_code, final OnRequestPermissionListener listener) {
-            this.listener=listener;
+            this.listener = listener;
+
             if (Build.VERSION.SDK_INT >= 23) {
+                builder = new AlertDialog.Builder(context);
                 if (ContextCompat.checkSelfPermission(context,
                         permission) != PackageManager.PERMISSION_GRANTED) {
-
-                    if(!ActivityCompat.shouldShowRequestPermissionRationale((Activity)context,permission)){
-                        new AlertDialog.Builder(context).setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
+                    if (!ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, permission)) {
+                        builder.setNegativeButton("拒绝", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                if(null!=listener){
+                                if (null != listener) {
                                     listener.requestFailed();
                                 }
                             }
-                        }).setMessage(permission).setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        }).setMessage("否申需要用户权限申请，是否申请？？").setPositiveButton("确定", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-                                ActivityCompat.requestPermissions((Activity)context, new String[]{permission},permissions_request_code );
+                                ActivityCompat.requestPermissions((Activity) context, new String[]{permission}, permissions_request_code);
                             }
-                        }).create().show();
-
+                        }).create();
+                        builder.show();
                         return this;
                     }
-                    ActivityCompat.requestPermissions((Activity)context, new String[]{permission},permissions_request_code );
+                    ActivityCompat.requestPermissions((Activity) context, new String[]{permission}, permissions_request_code);
                     return this;
                 } else {
                     if (null != listener) {
-                        listener.requestSucceed(permission,permissions_request_code);
+                        listener.requestSucceed(permission, permissions_request_code);
                     }
                 }
             } else {
                 if (null != listener) {
-                    listener.requestSucceed(permission,permissions_request_code);
+                    listener.requestSucceed(permission, permissions_request_code);
                 }
             }
             return this;
@@ -69,18 +70,18 @@ public class CheckPermissionUtils {
         public Builder onRequestPermissionsResult(int permissions_request_code, String[] permissions, int[] grantResults) {
 
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if(null!=listener){
-                    listener.requestSucceed(permissions[0],permissions_request_code);
+                if (null != listener) {
+                    listener.requestSucceed(permissions[0], permissions_request_code);
                 }
-            }else {
-                if(null!=listener){
+            } else {
+                if (null != listener) {
                     listener.requestFailed();
                 }
+
+
             }
             return this;
         }
-
-
 
 
     }
@@ -91,10 +92,12 @@ public class CheckPermissionUtils {
         intent.setData(Uri.parse("package:" + context.getPackageName()));
         context.startActivity(intent);
     }
+
     public interface OnRequestPermissionListener {
         void requestSucceed(String permission, int permissions_request_code);
 
         void requestFailed();
+
     }
 
 }

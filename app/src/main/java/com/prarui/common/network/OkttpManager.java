@@ -42,6 +42,7 @@ public class OkttpManager {
                     .readTimeout(30, TimeUnit.SECONDS)
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(60, TimeUnit.SECONDS)
+                    .addInterceptor(new OKttpInterceptor())
                     .build();
         }
     }

@@ -103,6 +103,24 @@ public class PhotoUtils {
         });
         builder.create().show();
     }
+    public void setImageLoaction(){
+        Intent openAlbumIntent = new Intent(
+                Intent.ACTION_GET_CONTENT);
+        openAlbumIntent.setType("image/*");
+        ((Activity) context).startActivityForResult(openAlbumIntent, IMAGE_REQUEST_CODE);
+    }
+    public void setImageByCamera(){
+        Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // 判断存储卡是否可以用，可用进行存储
+        String state = Environment.getExternalStorageState();
+        if (state.equals(Environment.MEDIA_MOUNTED)) {
+            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+            File file = new File(path, IMAGE_FILE_NAME);
+            intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+        }
+        // 指定照片保存路径（SD卡），image.jpg为一个临时文件，每次拍照后这个图片都会被替换
+        ((Activity) context).startActivityForResult(intentFromCapture, CAMERA_REQUEST_CODE);
+    }
 
     public void onActivityResult(int requestCode, int resultCode, Intent data, OnPhotoSelectListener listener) {
         if (resultCode != Activity.RESULT_CANCELED) {
