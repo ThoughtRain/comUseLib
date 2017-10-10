@@ -10,7 +10,7 @@ import okhttp3.Response;
  * Created by Prarui on 2017/9/27.
  */
 
-public class OKttpInterceptor implements Interceptor {
+public class OKHttpInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();

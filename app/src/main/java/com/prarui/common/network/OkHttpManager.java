@@ -2,6 +2,9 @@ package com.prarui.common.network;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.text.TextUtils;
 import android.util.Log;
@@ -33,8 +36,34 @@ import okhttp3.Response;
  * Created by Prarui on 2017/5/25.
  */
 
-public class OkttpManager {
+public class OkHttpManager {
+    private static String ERROR = "error";
+    private static String SUCCEED = "succeed";
     private static OkHttpClient mOkHttpClient = null;
+    private Handler handler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message message) {
+            switch (message.what) {
+                case 0:
+                    Bundle data = message.getData();
+                    String error = data.getString(ERROR);
+                    if (null != listener) {
+                        listener.onError(error);
+                    }
+
+                    break;
+                case 1:
+                    Bundle bundle = message.getData();
+                    String json = bundle.getString(SUCCEED);
+                    if (null != listener) {
+                        listener.onResponseSucceed(json);
+                    }
+                    break;
+            }
+
+            return false;
+        }
+    });
 
     public static void build() {
         if (null == mOkHttpClient) {
@@ -43,15 +72,33 @@ public class OkttpManager {
                     .readTimeout(30, TimeUnit.SECONDS)
                     .connectTimeout(10, TimeUnit.SECONDS)
                     .writeTimeout(60, TimeUnit.SECONDS)
-                    .addInterceptor(new OKttpInterceptor())
+                    .addInterceptor(new OKHttpInterceptor())
                     .build();
         }
     }
 
     /**
+     * post请求方式
+     **/
+    private OnOkHttpResultCallbackListener listener;
+
+    public static OkHttpClient getOkHttpClient() {
+        return mOkHttpClient;
+    }
+
+    private static OkHttpManager manager;
+
+    public static OkHttpManager with() {
+        if (null == manager) {
+            manager = new OkHttpManager();
+        }
+        return manager;
+    }
+
+    /**
      * get请求方式
      **/
-    public static void setGetRequest(Context context, String url, String token, HashMap<String, String> params, OnOkttpResultCallbackListener listener) {
+    public void setGetRequest(Context context, String url, String token, HashMap<String, String> params, OnOkHttpResultCallbackListener listener) {
         //API 14以下的处理
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -99,11 +146,9 @@ public class OkttpManager {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    /**
-     * post请求方式
-     **/
-    public static void setPostRequest(Context context, String url, String token, HashMap<String, String> params, final OnOkttpResultCallbackListener listener) {
+    public void setPostRequest(Context context, String url, String token, HashMap<String, String> params, final OnOkHttpResultCallbackListener listener) {
         //API 14以下的处理
+        this.listener = listener;
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         if (params == null) {
@@ -148,7 +193,7 @@ public class OkttpManager {
         }
     }
 
-    public static void setPutRequest(Context context, String url, String token, HashMap<String, String> params, final OnOkttpResultCallbackListener listener) {
+    public void setPutRequest(Context context, String url, String token, HashMap<String, String> params, final OnOkHttpResultCallbackListener listener) {
         //API 14以下的处理
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -199,19 +244,16 @@ public class OkttpManager {
     }
 
     //返回结果
-    private static void getNetWorkData(final Context context, final Request request, final OnOkttpResultCallbackListener listener) {
+    private void getNetWorkData(final Context context, final Request request, final OnOkHttpResultCallbackListener listener) {
         mOkHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                ((Activity) context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (listener != null) {
-                            listener.onError("请求数据失败");
-                        }
-                    }
-                });
-
+                Message message = new Message();
+                message.what = 0;
+                Bundle bundle = new Bundle();
+                bundle.putString("error", "请求数据失败");
+                message.setData(bundle);
+                handler.sendMessage(message);
 
             }
 
@@ -220,27 +262,24 @@ public class OkttpManager {
 
                 final String json = response.body().string();
                 TagLog.d(json);
-                ((Activity) context).runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
 
-                        if (listener != null) {
-                            listener.onResponSesucceed(json);
-                        }
-                    }
-                });
-
+                Message message = new Message();
+                message.what = 1;
+                Bundle bundle = new Bundle();
+                bundle.putString(SUCCEED, json);
+                message.setData(bundle);
+                handler.sendMessage(message);
             }
         });
     }
 
     //返回接口
-    public interface OnOkttpResultCallbackListener {
+    public interface OnOkHttpResultCallbackListener {
 
 
         void onError(String e);
 
-        void onResponSesucceed(String json);
+        void onResponseSucceed(String json);
 
     }
 
