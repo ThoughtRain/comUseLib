@@ -5,21 +5,26 @@ import android.net.ConnectivityManager;
 
 /**
  * NetConUtils(是否网络连接工具类)
- *
+ * <p>
  * Created by prarui on 2017/5/26.
  */
 
-public class NetWorkUtils
-{
+public class NetWorkUtils {
+    private static Context mContext;
+
     /**
      * 检查网络连接情况
-     * @param context
+     *
+     * @param
      * @return
      */
-   public static boolean isOpenNetwork(Context context)
-    {
-        ConnectivityManager connManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if(connManager.getActiveNetworkInfo() != null) {
+    public static void build(Context context) {
+        mContext = context;
+    }
+
+    public static boolean isOpenNetwork() {
+        ConnectivityManager connManager = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connManager.getActiveNetworkInfo() != null) {
             return connManager.getActiveNetworkInfo().isAvailable();
         }
         return false;

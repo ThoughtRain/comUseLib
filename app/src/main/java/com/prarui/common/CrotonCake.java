@@ -2,6 +2,7 @@ package com.prarui.common;
 
 import android.content.Context;
 
+import com.prarui.common.conutils.NetWorkUtils;
 import com.prarui.common.conutils.SharePreferenceUtils;
 import com.prarui.common.conutils.SystemUtils;
 import com.prarui.common.conutils.ToastUtils;
@@ -18,5 +19,6 @@ public class CrotonCake {
         SystemUtils.build(context);
         ToastUtils.buid(context);
         OkHttpManager.build();
+        NetWorkUtils.build(context);
     }
 }

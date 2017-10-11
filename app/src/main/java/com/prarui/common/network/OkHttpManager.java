@@ -1,7 +1,5 @@
 package com.prarui.common.network;
 
-import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +38,7 @@ public class OkHttpManager {
     private static String ERROR = "error";
     private static String SUCCEED = "succeed";
     private static OkHttpClient mOkHttpClient = null;
+    private static HashMap<String, Call> map = new HashMap<>();
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message message) {
@@ -98,11 +97,11 @@ public class OkHttpManager {
     /**
      * get请求方式
      **/
-    public void setGetRequest(Context context, String url, String token, HashMap<String, String> params, OnOkHttpResultCallbackListener listener) {
+    public void setGetRequest(String tag, String url, String token, HashMap<String, String> params, OnOkHttpResultCallbackListener listener) {
         //API 14以下的处理
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
-
+        this.listener = listener;
 
         String get_url = url;
         if (params == null) {
@@ -137,8 +136,8 @@ public class OkHttpManager {
                     .build();
         }
 
-        if (NetWorkUtils.isOpenNetwork(context)) {
-            getNetWorkData(context, request, listener);
+        if (NetWorkUtils.isOpenNetwork()) {
+            getNetWorkData(tag, request);
         } else {
             listener.onError("网络错误，请检查你的网络");
         }
@@ -146,7 +145,7 @@ public class OkHttpManager {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
-    public void setPostRequest(Context context, String url, String token, HashMap<String, String> params, final OnOkHttpResultCallbackListener listener) {
+    public void setPostRequest(String tag, String url, String token, HashMap<String, String> params, OnOkHttpResultCallbackListener listener) {
         //API 14以下的处理
         this.listener = listener;
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -186,21 +185,22 @@ public class OkHttpManager {
                     .build();
         }
 
-        if (NetWorkUtils.isOpenNetwork(context)) {
-            getNetWorkData(context, request, listener);
+        if (NetWorkUtils.isOpenNetwork()) {
+            getNetWorkData(tag, request);
         } else {
             listener.onError("网络错误，请检查你的网络");
         }
     }
 
-    public void setPutRequest(Context context, String url, String token, HashMap<String, String> params, final OnOkHttpResultCallbackListener listener) {
+    public void setPutRequest(String tag, String url, String token, HashMap<String, String> params, OnOkHttpResultCallbackListener listener) {
         //API 14以下的处理
+        this.listener = listener;
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
         if (params == null) {
             params = new HashMap<>();
         }
-        RequestBody requestBody = null;
+        //   RequestBody requestBody = null;
         okhttp3.FormBody.Builder builder = new FormBody.Builder();
         for (Map.Entry<String, String> map : params.entrySet()) {
             String key = map.getKey().toString();
@@ -216,7 +216,7 @@ public class OkHttpManager {
 //     把key和value添加到formbody中
             builder.add(key, value);
         }
-        requestBody = builder.build();
+        //   requestBody = builder.build();
         String json = GsonUtils.toJson(params);
         RequestBody requestBody1 = RequestBody.create(JSON, json);
         Request request;
@@ -236,16 +236,18 @@ public class OkHttpManager {
         }
 
         Log.e("url", url);
-        if (NetWorkUtils.isOpenNetwork(context)) {
-            getNetWorkData(context, request, listener);
+        if (NetWorkUtils.isOpenNetwork()) {
+            getNetWorkData(tag, request);
         } else {
             listener.onError("网络错误，请检查你的网络");
         }
     }
 
     //返回结果
-    private void getNetWorkData(final Context context, final Request request, final OnOkHttpResultCallbackListener listener) {
-        mOkHttpClient.newCall(request).enqueue(new Callback() {
+    private void getNetWorkData(String tag, final Request request) {
+        Call call = mOkHttpClient.newCall(request);
+        map.put(tag, call);
+        call.enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 Message message = new Message();
@@ -254,15 +256,12 @@ public class OkHttpManager {
                 bundle.putString("error", "请求数据失败");
                 message.setData(bundle);
                 handler.sendMessage(message);
-
             }
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-
                 final String json = response.body().string();
                 TagLog.d(json);
-
                 Message message = new Message();
                 message.what = 1;
                 Bundle bundle = new Bundle();
@@ -271,14 +270,41 @@ public class OkHttpManager {
                 handler.sendMessage(message);
             }
         });
+
     }
+
+    public void cancelAll() {
+        mOkHttpClient.dispatcher().cancelAll();
+    }
+
+    public void cancelNetWorkByTag(String tag) {
+        for (Map.Entry<String, Call> entry : map.entrySet()) {
+            if (tag.equals(entry.getKey())) {
+                Call call = entry.getValue();
+                call.cancel();
+                map.remove(entry.getKey());
+            }
+            System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue());
+
+        }
+    }
+
 
     //返回接口
     public interface OnOkHttpResultCallbackListener {
 
-
+        /**
+         * 返回的错误
+         *
+         * @param e
+         */
         void onError(String e);
 
+        /**
+         * 返回请求成功的例子
+         *
+         * @param json
+         */
         void onResponseSucceed(String json);
 
     }
