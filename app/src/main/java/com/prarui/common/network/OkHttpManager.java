@@ -35,8 +35,8 @@ import okhttp3.Response;
  */
 
 public class OkHttpManager {
-    private static String ERROR = "error";
-    private static String SUCCEED = "succeed";
+    private static final String ERROR = "error";
+    private static final String SUCCEED = "succeed";
     private static OkHttpClient mOkHttpClient = null;
     private static HashMap<String, Call> map = new HashMap<>();
     private Handler handler = new Handler(new Handler.Callback() {
