@@ -153,7 +153,7 @@ public class OkHttpManager {
         if (params == null) {
             params = new HashMap<>();
         }
-        RequestBody requestBody = null;
+      //  RequestBody requestBody = null;
         FormBody.Builder builder = new FormBody.Builder();
         for (Map.Entry<String, String> map : params.entrySet()) {
             String key = map.getKey().toString();
@@ -169,7 +169,9 @@ public class OkHttpManager {
 //     把key和value添加到formbody中
             builder.add(key, value);
         }
-        requestBody = builder.build();
+       // requestBody = builder.build();
+        String json = GsonUtils.toJson(params);
+        RequestBody requestBody = RequestBody.create(JSON, json);
         Request request;
         if (token == null) {
             request = new Request.Builder()
@@ -218,20 +220,20 @@ public class OkHttpManager {
         }
         //   requestBody = builder.build();
         String json = GsonUtils.toJson(params);
-        RequestBody requestBody1 = RequestBody.create(JSON, json);
+        RequestBody requestBody = RequestBody.create(JSON, json);
         Request request;
         if (token == null) {
             request = new Request.Builder()
                     .url(url)
                     .header("Content-Type", "application/json")
-                    .put(requestBody1)
+                    .put(requestBody)
                     .build();
         } else {
             request = new Request.Builder()
                     .url(url)
                     .header("token", token)
                     .addHeader("Content-Type", "application/json")
-                    .put(requestBody1)
+                    .put(requestBody)
                     .build();
         }
 
