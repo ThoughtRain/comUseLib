@@ -25,7 +25,7 @@ public class TextUtils {
              * 读取和压缩图片资源 并将其保存在 ByteArrayOutputStream对象中
 			 */
             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, outputStream);
-            String imgBase64 = new String(Base64.encode(outputStream.toByteArray(), Base64.DEFAULT));
+             String imgBase64 = new String(Base64.encode(outputStream.toByteArray(), Base64.DEFAULT));
             return imgBase64;
         } catch (Exception e) {
             if (null != outputStream) {

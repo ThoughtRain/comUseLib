@@ -5,13 +5,14 @@ apply plugin: 'com.jfrog.bintray'
 version = "1.0.11"
 android {
     compileSdkVersion 26
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 1
         versionName version
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
     }
     lintOptions {
         abortOnError false
@@ -22,6 +23,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
 }
 
 dependencies {
@@ -36,6 +38,7 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
     compile 'junit:junit:4.12'
     compile 'com.squareup.okio:okio:1.13.0'
+    compile 'com.leo.gesturelibray:GestureLibray:1.0.9'
 }
 def siteUrl = 'https://github.com/ThoughtRain/comUseLib'      // 项目的主页
 def gitUrl = 'https://github.com/ThoughtRain/comUseLib.git'   // Git仓库的url
